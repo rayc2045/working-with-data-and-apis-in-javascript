@@ -10,21 +10,21 @@
   <body>
     <script>
       getData("/data/GLB.Ts+dSST.csv").then((csv) => {
-        document.body.innerHTML += csvToTableHtml(csv);
+        document.body.innerHTML += getTableHtml(csv);
       });
 
-      async function getData(path) {
+      async function getData(path, option) {
         const res = await fetch(path),
           data = await res.text();
         const type = path.split(".").at(-1);
-        if (type === "csv") return parseCsv(data);
-        return data;
+        if (type === "csv") return parseCsv(data, option);
+        return { ...option, data };
       }
 
-      function parseCsv(csvString) {
+      function parseCsv(csvString, option = {}) {
         const csvRows = csvString.trim().split("\n"),
-          title = csvRows[0],
-          rows = csvRows.slice(1),
+          title = option.title || csvRows[0],
+          rows = option.title ? csvRows : csvRows.slice(1),
           header = rows[0].split(",").map((h) => h.trim());
         const data = rows.slice(1).map((rowString) => {
           const values = rowString.split(",").map((v) => v.trim());
@@ -37,12 +37,10 @@
         return { title, data };
       }
 
-      function csvToTableHtml(csv) {
+      function getTableHtml(csv) {
         return `
           <table>
-            <caption>
-              ${csv.title}
-            </caption>
+            ${csv.title && `<caption>${csv.title}</caption>`}
             <thead>
               <tr>
                 ${Object.entries(csv.data[0])

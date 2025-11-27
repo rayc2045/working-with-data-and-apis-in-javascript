@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <img src="" alt="Image" />
+
+    <script>
+      fetchImage("/imgs/rainbow.jpg")
+        .then((image) => {
+          const img = document.querySelector("img");
+          img.src = image;
+          console.log("Image loaded");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
+      async function fetchImage(imagename) {
+        const res = await fetch(imagename);
+        const blob = await res.blob();
+        return URL.createObjectURL(blob);
+      }
+
+      // fetch("/imgs/rainbow.jpg")
+      //   .then((res) => res.blob())
+      //   .then((blob) => {
+      //     const img = document.querySelector("img");
+      //     img.src = URL.createObjectURL(blob);
+      //   })
+      //   .catch((error) => console.error(error));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CSV Data</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+  <body>
+    <script>
+      getData("/data/GLB.Ts+dSST.csv").then((csv) => {
+        document.body.innerHTML += csvToTableHtml(csv);
+      });
+
+      async function getData(path) {
+        const res = await fetch(path),
+          data = await res.text();
+        const type = path.split(".").at(-1);
+        if (type === "csv") return parseCsv(data);
+        return data;
+      }
+
+      function parseCsv(csvString) {
+        const csvRows = csvString.trim().split("\n"),
+          title = csvRows[0],
+          rows = csvRows.slice(1),
+          header = rows[0].split(",").map((h) => h.trim());
+        const data = rows.slice(1).map((rowString) => {
+          const values = rowString.split(",").map((v) => v.trim());
+          const rowObject = {};
+          header.forEach((colName, index) => {
+            rowObject[colName] = values[index];
+          });
+          return rowObject;
+        });
+        return { title, data };
+      }
+
+      function csvToTableHtml(csv) {
+        return `
+          <table>
+            <caption>
+              ${csv.title}
+            </caption>
+            <thead>
+              <tr>
+                ${Object.entries(csv.data[0])
+                  .map(([key, value]) => `<th scope="col">${key}</th>`)
+                  .join("")}
+              </tr>
+            </thead>
+            <tbody>
+              ${csv.data
+                .map((row) => {
+                  return `<tr>
+                  ${Object.entries(row)
+                    .map(([key, value]) => `<td>${value}</td>`)
+                    .join("")}
+                </tr>`;
+                })
+                .join("")}
+            </tbody>
+          </table>`;
+      }
+    </script>
+  </body>
+</html>

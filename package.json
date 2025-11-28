@@ -9,8 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@10.24.0",
   "dependencies": {
-    "@picocss/pico": "^2.1.1"
+    "@picocss/pico": "^2.1.1",
+    "chart.js": "^4.5.1"
   }
 }

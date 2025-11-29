@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Refreshing Data with setInterval()</title>
+    <link
+      rel="stylesheet"
+      href="/node_modules/@picocss/pico/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <style>
+      #map {
+        height: 500px;
+      }
+      .leaflet-marker-icon {
+        background-color: transparent;
+        border-color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <h1>Where is the ISS?</h1>
+      <div id="map"></div>
+    </header>
+
+    <script>
+      (async function () {
+        // making a map and tiles
+        const map = L.map("map").setView([0, 0], 2);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        // making a marker with custom icon
+        const issIcon = L.icon({
+            iconUrl:
+              "https://raw.githubusercontent.com/CodingTrain/Intro-to-Data-APIs-JS/refs/heads/source/module1/03_mapping_iss/iss200.png",
+            iconSize: [50, 32],
+            iconAnchor: [25, 16],
+          }),
+          marker = L.marker([0, 0], { icon: issIcon }).addTo(map);
+
+        const issMarker = document.querySelector(".leaflet-marker-icon");
+        issMarker.style.visibility = "hidden";
+
+        // API source: https://wheretheiss.at/w/developer
+        const ISS_API = "https://api.wheretheiss.at/v1/satellites/25544",
+          getISS = async () => {
+            const res = await fetch(ISS_API),
+              data = await res.json(),
+              { latitude, longitude } = data;
+            return { latitude, longitude };
+          },
+          updateISS = async () => {
+            const { latitude, longitude } = await getISS();
+            console.log(latitude, longitude);
+            map.setView([latitude, longitude], 3);
+            marker.setLatLng([latitude, longitude]);
+            setTimeout(updateISS, 60_000);
+          };
+
+        await updateISS();
+        issMarker.style.visibility = "visible";
+      })();
+    </script>
+  </body>
+</html>

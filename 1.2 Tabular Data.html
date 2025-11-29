@@ -12,6 +12,7 @@
   </head>
   <body>
     <script>
+      // data source: https://data.giss.nasa.gov/gistemp/
       getData("/data/GLB.Ts+dSST.csv").then((csv) => {
         document.body.innerHTML += getTableHtml(csv);
       });

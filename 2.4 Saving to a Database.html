@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Saving to a Database</title>
+    <link
+      rel="stylesheet"
+      href="/node_modules/@picocss/pico/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <style>
+      @media (width > 640px) {
+        form {
+          width: 50%;
+        }
+      }
+      #map {
+        height: 500px;
+      }
+      .leaflet-marker-icon {
+        background-color: transparent;
+        border-color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <h1>Where are you?</h1>
+      <form>
+        <fieldset>
+          <label>
+            Latitude
+            <input type="text" name="latitude" />
+          </label>
+          <label>
+            Longitude
+            <input type="text" name="longitude" />
+          </label>
+        </fieldset>
+        <input type="submit" value="Search position" />
+      </form>
+      <div id="map"></div>
+    </header>
+
+    <script>
+      const map = L.map("map").setView([0, 0], 2);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      const marker = L.marker([0, 0]).addTo(map),
+        markerEl = document.querySelector(".leaflet-marker-icon");
+      markerEl.style.visibility = "hidden";
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          const latInput = document.querySelector(`input[name="latitude"]`),
+            lonInput = document.querySelector(`input[name="longitude"]`);
+          latInput.value = latitude;
+          lonInput.value = longitude;
+
+          const btn = document.querySelector("input[type='submit']");
+          let isSearching = false;
+
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            if (isSearching) return;
+            isSearching = true;
+            markerEl.style.visibility = "hidden";
+            btn.setAttribute("disabled", "true");
+            const res = await fetch("/api", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  latitude: latInput.value,
+                  longitude: lonInput.value,
+                }),
+              }),
+              data = await res.json();
+            console.log(data);
+            map.setView([latInput.value, lonInput.value], 15);
+            marker.setLatLng([latInput.value, lonInput.value]);
+            markerEl.style.visibility = "visible";
+            await delay(2);
+            isSearching = false;
+            btn.removeAttribute("disabled");
+          });
+        });
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+
+      function delay(s) {
+        return new Promise((resolve) => setTimeout(resolve, s * 1000));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Database Query</title>
+    <link
+      rel="stylesheet"
+      href="/node_modules/@picocss/pico/css/pico.min.css"
+    />
+    <style>
+      #logs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        > div {
+          padding: 0.75rem;
+          color: black;
+          background-color: silver;
+          border-radius: 0.25rem;
+          > p {
+            margin: 0;
+            color: inherit;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <h1>Data Selfie App</h1>
+    </header>
+    <div class="container">
+      <h3>Logs</h3>
+      <div id="logs"></div>
+    </div>
+
+    <script>
+      (async () => {
+        const data = await getData();
+        console.log(data);
+        for (const item of data) {
+          const div = document.createElement("div");
+          for (const key in item) {
+            const p = document.createElement("p");
+            p.textContent =
+              key === "timestamp"
+                ? `time: ${new Date(item[key]).toLocaleString()}`
+                : `${key}: ${item[key]}`;
+            div.appendChild(p);
+          }
+          document.querySelector("#logs").appendChild(div);
+        }
+      })();
+
+      async function getData() {
+        const res = await fetch("/api/logs"),
+          data = await res.json();
+        return data;
+      }
+    </script>
+  </body>
+</html>

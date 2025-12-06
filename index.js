@@ -25,6 +25,12 @@ import { JSONFilePreset } from "lowdb/node";
       defaultData,
     );
 
+  app.get("/api/logs", async (req, res) => {
+    await db.read();
+    const { logs } = db.data;
+    res.json(logs);
+  });
+
   app.post("/api", async (req, res) => {
     const { latitude, longitude } = req.body;
     // const filePath = "data/location.txt";

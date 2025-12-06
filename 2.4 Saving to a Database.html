@@ -40,7 +40,7 @@
             <input type="text" name="longitude" />
           </label>
         </fieldset>
-        <input type="submit" value="Search position" />
+        <input type="submit" value="Search position" disabled />
       </form>
       <div id="map"></div>
     </header>
@@ -57,6 +57,22 @@
         markerEl = document.querySelector(".leaflet-marker-icon");
       markerEl.style.visibility = "hidden";
 
+      const updateMap = async (latitude, longitude) => {
+        markerEl.style.visibility = "hidden";
+        const res = await fetch("/api", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ latitude, longitude }),
+          }),
+          data = await res.json();
+        console.log(data);
+        map.setView([latitude, longitude], 15);
+        marker.setLatLng([latitude, longitude]);
+        markerEl.style.visibility = "visible";
+      };
+
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(async (position) => {
           const { latitude, longitude } = position.coords;
@@ -66,33 +82,23 @@
           latInput.value = latitude;
           lonInput.value = longitude;
 
-          const btn = document.querySelector("input[type='submit']");
           let isSearching = false;
+          const btn = document.querySelector("input[type='submit']"),
+            searchLocation = async (latitude, longitude) => {
+              if (isSearching) return;
+              isSearching = true;
+              btn.setAttribute("disabled", "true");
+              await updateMap(latitude, longitude);
+              await delay(2);
+              isSearching = false;
+              btn.removeAttribute("disabled");
+            };
+
+          await searchLocation(latInput.value, lonInput.value);
 
           btn.addEventListener("click", async (e) => {
             e.preventDefault();
-            if (isSearching) return;
-            isSearching = true;
-            markerEl.style.visibility = "hidden";
-            btn.setAttribute("disabled", "true");
-            const res = await fetch("/api", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  latitude: latInput.value,
-                  longitude: lonInput.value,
-                }),
-              }),
-              data = await res.json();
-            console.log(data);
-            map.setView([latInput.value, lonInput.value], 15);
-            marker.setLatLng([latInput.value, lonInput.value]);
-            markerEl.style.visibility = "visible";
-            await delay(2);
-            isSearching = false;
-            btn.removeAttribute("disabled");
+            await searchLocation(latInput.value, lonInput.value);
           });
         });
       } else {

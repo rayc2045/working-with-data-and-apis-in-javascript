@@ -1,0 +1,19 @@
+{
+  "logs": [
+    {
+      "timestamp": 1765421579769,
+      "latitude": "52.520008",
+      "longitude": "13.404954"
+    },
+    {
+      "timestamp": 1765421652636,
+      "latitude": "40.730610",
+      "longitude": "-73.935242"
+    },
+    {
+      "timestamp": 1765421740373,
+      "latitude": "-23.55052",
+      "longitude": "-46.63309"
+    }
+  ]
+}

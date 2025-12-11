@@ -41,20 +41,14 @@
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(map);
 
-        const data = await getData();
+        const logs = await fetch("/api/logs").then((res) => res.json());
 
-        data.forEach(({ timestamp, latitude, longitude }) => {
+        logs.forEach(({ timestamp, latitude, longitude }) => {
           const time = new Date(timestamp).toLocaleString(),
             text = `Check time: ${time}`;
           L.marker([latitude, longitude]).bindPopup(text).addTo(map);
         });
       })();
-
-      async function getData() {
-        const res = await fetch("/api/logs"),
-          data = await res.json();
-        return data;
-      }
     </script>
   </body>
 </html>

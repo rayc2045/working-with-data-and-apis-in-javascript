@@ -5,6 +5,9 @@ import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import { JSONFilePreset } from "lowdb/node";
 
+import * as dotenv from "dotenv";
+dotenv.config();
+
 (async () => {
   const app = express(),
     port = 3000,
@@ -33,6 +36,7 @@ import { JSONFilePreset } from "lowdb/node";
 
   app.post("/api", async (req, res) => {
     const { latitude, longitude } = req.body;
+    // const { API_KEY } = process.env;
     // const filePath = "data/location.txt";
     // const contentToAppend = `${latitude}, ${longitude}\n`;
     try {

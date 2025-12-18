@@ -10,7 +10,7 @@ dotenv.config();
 
 (async () => {
   const app = express(),
-    port = 3000,
+    port = process.env.PORT || 3000,
     __filename = fileURLToPath(import.meta.url),
     __dirname = path.dirname(__filename);
 
@@ -18,7 +18,9 @@ dotenv.config();
   app.use(express.json({ limit: "1mb" }));
 
   app.listen(port, () => {
-    console.log(`Listening at http://localhost:${port}`);
+    console.log(
+      `Listening at ${port === 3000 ? "http://localhost:3000" : port}`,
+    );
   });
 
   await fs.mkdir(path.join(__dirname, "data"), { recursive: true });
